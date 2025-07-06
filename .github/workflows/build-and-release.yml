@@ -31,11 +31,16 @@ jobs:
         chmod +x scripts/release.sh
         make rpm
         
+    - name: List RPM artifacts
+      run: |
+        echo "Built RPM packages:"
+        ls -la ~/rpmbuild/RPMS/noarch/
+        
     - name: Upload RPM artifacts
       uses: actions/upload-artifact@v4
       with:
         name: rpm-packages
-        path: ~/rpmbuild/RPMS/noarch/*.rpm
+        path: ~/rpmbuild/RPMS/noarch/
         retention-days: 30
 
   build-deb:
@@ -59,11 +64,17 @@ jobs:
         chmod +x scripts/release.sh debian/rules
         make deb
         
+    - name: List DEB artifacts
+      run: |
+        echo "Built DEB packages:"
+        ls -la ../
+        find .. -name "*.deb" -type f
+        
     - name: Upload DEB artifacts
       uses: actions/upload-artifact@v4
       with:
         name: deb-packages
-        path: ../*.deb
+        path: ../hugepages-reserve-service_*.deb
         retention-days: 30
 
   release:
@@ -84,44 +95,44 @@ jobs:
         name: deb-packages
         path: ./deb-packages
         
-    - name: Get release info
-      id: release_info
+    - name: List downloaded files
+      run: |
+        echo "RPM packages:"
+        find ./rpm-packages -type f
+        echo "DEB packages:"
+        find ./deb-packages -type f
+        
+    - name: Get tag name
+      id: tag
       run: |
         if [ "${{ github.event_name }}" = "release" ]; then
-          echo "upload_url=${{ github.event.release.upload_url }}" >> $GITHUB_OUTPUT
-          echo "release_id=${{ github.event.release.id }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
         else
-          # タグプッシュの場合は新しいリリースを作成
-          tag_name=${GITHUB_REF#refs/tags/}
-          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         fi
         
-    - name: Create release (if tag push)
-      if: startsWith(github.ref, 'refs/tags/v') && github.event_name != 'release'
-      id: create_release
+    - name: Release
       uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.release_info.outputs.tag_name }}
-        name: Release ${{ steps.release_info.outputs.tag_name }}
+        tag_name: ${{ steps.tag.outputs.tag_name }}
+        name: Release ${{ steps.tag.outputs.tag_name }}
         body: |
-          ## hugepages-reserve-service ${{ steps.release_info.outputs.tag_name }}
+          ## hugepages-reserve-service ${{ steps.tag.outputs.tag_name }}
           
           ### Installation
           
           #### RPM (Red Hat/CentOS/Fedora/Rocky Linux/AlmaLinux)
           ```bash
           # Download and install
-          wget https://github.com/${{ github.repository }}/releases/download/${{ steps.release_info.outputs.tag_name }}/hugepages-reserve-service-*.noarch.rpm
-          sudo rpm -ivh hugepages-reserve-service-*.noarch.rpm
+          wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*.rpm
+          sudo rpm -ivh hugepages-reserve-service-*.rpm
           ```
           
           #### DEB (Debian/Ubuntu)
           ```bash
           # Download and install
-          wget https://github.com/${{ github.repository }}/releases/download/${{ steps.release_info.outputs.tag_name }}/hugepages-reserve-service_*_all.deb
-          sudo dpkg -i hugepages-reserve-service_*_all.deb
+          wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service_*.deb
+          sudo dpkg -i hugepages-reserve-service_*.deb
           ```
           
           ### Usage
@@ -131,8 +142,8 @@ jobs:
           
           See README.md for detailed configuration instructions.
         files: |
-          ./rpm-packages/*.rpm
-          ./deb-packages/*.deb
+          rpm-packages/**
+          deb-packages/**
         draft: false
         prerelease: false
 
