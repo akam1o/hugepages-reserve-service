@@ -1,0 +1,45 @@
+name: Build EL7 Package (Alternative)
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  build-el7-on-modern-base:
+    runs-on: ubuntu-latest
+    container: rockylinux:8
+    
+    steps:
+    - name: Setup Git for older systems
+      run: |
+        dnf install -y git
+        git config --global --add safe.directory '*'
+        
+    - name: Manual checkout (for compatibility)
+      run: |
+        git clone https://github.com/${{ github.repository }}.git .
+        if [[ -n "${{ inputs.version }}" ]]; then
+          git checkout "v${{ inputs.version }}"
+        fi
+        
+    - name: Install build tools
+      run: |
+        dnf update -y
+        dnf install -y rpm-build rpmdevtools make tar gzip
+        rpmdev-setuptree
+        
+    - name: Build EL7 package
+      run: |
+        chmod +x scripts/release.sh
+        ./scripts/release.sh "${{ inputs.version }}"
+        sed -i "s/%{?dist}/.el7/" rpm/hugepages-reserve-service.spec
+        make rpm
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpm-packages-el7-alternative
+        path: ~/rpmbuild/RPMS/noarch/

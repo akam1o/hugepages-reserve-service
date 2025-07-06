@@ -22,8 +22,6 @@ jobs:
             el_version: "el9"
           - container: "rockylinux:8"
             el_version: "el8"
-          - container: "centos:7"
-            el_version: "el7"
     
     container: ${{ matrix.container }}
     
@@ -33,15 +31,9 @@ jobs:
       
     - name: Install RPM build dependencies
       run: |
-        if [[ "${{ matrix.el_version }}" == "el7" ]]; then
-          # EL7 uses yum
-          yum update -y
-          yum install -y rpm-build rpmdevtools make tar gzip
-        else
-          # EL8/EL9 use dnf
-          dnf update -y
-          dnf install -y rpm-build rpmdevtools make tar gzip
-        fi
+        # All containers now use dnf
+        dnf update -y
+        dnf install -y rpm-build rpmdevtools make tar gzip
         
     - name: Setup RPM build environment
       run: |
@@ -59,9 +51,7 @@ jobs:
           ./scripts/release.sh $TAG_VERSION
         fi
         # Update dist tag for different EL versions
-        if [[ "${{ matrix.el_version }}" == "el7" ]]; then
-          sed -i "s/%{?dist}/.el7/" rpm/hugepages-reserve-service.spec
-        elif [[ "${{ matrix.el_version }}" == "el8" ]]; then
+        if [[ "${{ matrix.el_version }}" == "el8" ]]; then
           sed -i "s/%{?dist}/.el8/" rpm/hugepages-reserve-service.spec
         else
           sed -i "s/%{?dist}/.el9/" rpm/hugepages-reserve-service.spec
@@ -192,10 +182,6 @@ jobs:
         # For EL8 (Rocky Linux 8, AlmaLinux 8, RHEL 8, CentOS 8)
         wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*-1.el8.noarch.rpm
         sudo rpm -ivh hugepages-reserve-service-*-1.el8.noarch.rpm
-        
-        # For EL7 (CentOS 7, RHEL 7)
-        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*-1.el7.noarch.rpm
-        sudo rpm -ivh hugepages-reserve-service-*-1.el7.noarch.rpm
         ```
         
         #### DEB (Debian/Ubuntu)
@@ -241,10 +227,6 @@ jobs:
             package-type: "rpm-packages-el8"
             install-cmd: "dnf install -y systemd && rpm -ivh"
             systemd-path: "/usr/lib/systemd/system"
-          - os-image: "almalinux:7"
-            package-type: "rpm-packages-el7"
-            install-cmd: "yum install -y systemd && rpm -ivh"
-            systemd-path: "/usr/lib/systemd/system"
           - os-image: "ubuntu:22.04"
             package-type: "deb-packages"
             install-cmd: "apt-get update && dpkg -i"
@@ -262,13 +244,8 @@ jobs:
         docker run --rm -v $(pwd)/packages:/packages ${{ matrix.os-image }} bash -c "
           echo 'Installing package dependencies...'
           if [[ '${{ matrix.package-type }}' == *'rpm'* ]]; then
-            if [[ '${{ matrix.os-image }}' == *'7' ]]; then
-              yum update -y
-              yum install -y systemd
-            else
-              dnf update -y
-              dnf install -y systemd
-            fi
+            dnf update -y
+            dnf install -y systemd
             echo 'Installing RPM package...'
             rpm -ivh /packages/*.rpm --nodeps || rpm -ivh /packages/*.rpm
           else
