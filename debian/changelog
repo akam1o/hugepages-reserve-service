@@ -1,3 +1,15 @@
+hugepages-reserve-service (1.0.5-1) unstable; urgency=medium
+
+  * Release version 1.0.5
+
+ -- System Administrator <admin@example.com>  Sun, 06 Jul 2025 16:19:14 +0900
+
+hugepages-reserve-service (1.0.3-1) unstable; urgency=medium
+
+  * Release version 1.0.3
+
+ -- System Administrator <admin@example.com>  Sun, 06 Jul 2025 16:18:19 +0900
+
 hugepages-reserve-service (1.0.0-1) unstable; urgency=medium
 
   * Initial release

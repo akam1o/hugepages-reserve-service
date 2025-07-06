@@ -1,5 +1,5 @@
 PACKAGE_NAME = hugepages-reserve-service
-VERSION = 1.0.0
+VERSION = 1.0.5
 RELEASE = 1
 
 # RPM build directories

@@ -1,5 +1,5 @@
 Name:           hugepages-reserve-service
-Version:        1.0.0
+Version:        1.0.5
 Release:        1%{?dist}
 Summary:        Service for reserving hugepages on NUMA nodes
 
@@ -9,6 +9,8 @@ Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
 Requires:       /bin/sh
+# systemd is needed for the service but not hard required for testing
+Recommends:     systemd
 
 %description
 A systemd service for reserving hugepages on NUMA nodes based on configuration.
@@ -34,13 +36,32 @@ cp -p hugepages-reserve-service/etc/systemd/system/hugepages-reserve.service $RP
 cp -p hugepages-reserve-service/usr/lib/systemd/hugepages-reserve.sh $RPM_BUILD_ROOT/usr/lib/systemd/
 
 %post
-%systemd_post hugepages-reserve.service
+if [ $1 -eq 1 ] ; then
+    # Initial installation
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl preset hugepages-reserve.service >/dev/null 2>&1 || :
+    fi
+fi
 
 %preun
-%systemd_preun hugepages-reserve.service
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl --no-reload disable hugepages-reserve.service >/dev/null 2>&1 || :
+        systemctl stop hugepages-reserve.service >/dev/null 2>&1 || :
+    fi
+fi
 
 %postun
-%systemd_postun_with_restart hugepages-reserve.service
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl try-restart hugepages-reserve.service >/dev/null 2>&1 || :
+    fi
+fi
 
 %files
 %config(noreplace) /etc/hugepages.conf
