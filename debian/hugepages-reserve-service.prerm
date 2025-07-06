@@ -1,0 +1,12 @@
+# If the service was enabled before removal, disable it
+if deb-systemd-helper --quiet was-enabled hugepages-reserve.service; then
+    deb-systemd-helper disable hugepages-reserve.service >/dev/null || true
+fi
+
+# Stop the service if it's running
+if [ -d /run/systemd/system ]; then
+    systemctl --system daemon-reload >/dev/null || true
+    if [ -n "$2" ]; then
+        deb-systemd-invoke stop hugepages-reserve.service >/dev/null || true
+    fi
+fi

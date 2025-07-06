@@ -1,0 +1,17 @@
+Source: hugepages-reserve-service
+Section: admin
+Priority: optional
+Maintainer: System Administrator <admin@example.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.0
+Homepage: https://github.com/example/hugepages-reserve-service
+
+Package: hugepages-reserve-service
+Architecture: all
+Depends: ${misc:Depends}, systemd
+Description: Service for reserving hugepages on NUMA nodes
+ A systemd service for reserving hugepages on NUMA nodes based on configuration.
+ Supports 2MB and 1GB hugepages with per-node configuration.
+ .
+ This package provides a configuration-driven way to reserve hugepages
+ at system startup, useful for applications requiring large memory pages.

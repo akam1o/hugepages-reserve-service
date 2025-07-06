@@ -1,0 +1,8 @@
+hugepages-reserve-service (1.0.0-1) unstable; urgency=medium
+
+  * Initial release
+  * Systemd service for hugepages reservation
+  * Support for 2MB and 1GB hugepages
+  * Per-NUMA node configuration
+
+ -- System Administrator <admin@example.com>  $(date -R)

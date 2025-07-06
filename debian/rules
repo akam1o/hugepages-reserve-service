@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with systemd
+
+override_dh_auto_build:
+	# No build needed
+
+override_dh_auto_install:
+	# Install configuration file
+	install -D -m 644 hugepages-reserve-service/etc/hugepages.conf debian/hugepages-reserve-service/etc/hugepages.conf
+	
+	# Install systemd service file
+	install -D -m 644 hugepages-reserve-service/etc/systemd/system/hugepages-reserve.service \
+		debian/hugepages-reserve-service/lib/systemd/system/hugepages-reserve.service
+	
+	# Install script
+	install -D -m 755 hugepages-reserve-service/usr/lib/systemd/hugepages-reserve.sh \
+		debian/hugepages-reserve-service/usr/lib/systemd/hugepages-reserve.sh
