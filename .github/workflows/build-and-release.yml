@@ -14,7 +14,17 @@ permissions:
 jobs:
   build-rpm:
     runs-on: ubuntu-latest
-    container: rockylinux:9
+    strategy:
+      matrix:
+        include:
+          - container: "rockylinux:9"
+            el_version: "el9"
+          - container: "rockylinux:8"
+            el_version: "el8"
+          - container: "almalinux:7"
+            el_version: "el7"
+    
+    container: ${{ matrix.container }}
     
     steps:
     - name: Checkout code
@@ -22,8 +32,15 @@ jobs:
       
     - name: Install RPM build dependencies
       run: |
-        dnf update -y
-        dnf install -y rpm-build rpmdevtools make tar gzip
+        if [[ "${{ matrix.el_version }}" == "el7" ]]; then
+          # EL7 uses yum
+          yum update -y
+          yum install -y rpm-build rpmdevtools make tar gzip
+        else
+          # EL8/EL9 use dnf
+          dnf update -y
+          dnf install -y rpm-build rpmdevtools make tar gzip
+        fi
         
     - name: Setup RPM build environment
       run: |
@@ -44,13 +61,13 @@ jobs:
         
     - name: List RPM artifacts
       run: |
-        echo "Built RPM packages:"
+        echo "Built RPM packages for ${{ matrix.el_version }}:"
         ls -la ~/rpmbuild/RPMS/noarch/
         
     - name: Upload RPM artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: rpm-packages
+        name: rpm-packages-${{ matrix.el_version }}
         path: ~/rpmbuild/RPMS/noarch/
         retention-days: 30
 
@@ -116,8 +133,9 @@ jobs:
     - name: Download RPM artifacts
       uses: actions/download-artifact@v4
       with:
-        name: rpm-packages
+        pattern: rpm-packages-*
         path: ./rpm-packages
+        merge-multiple: true
         
     - name: Download DEB artifacts
       uses: actions/download-artifact@v4
@@ -154,10 +172,21 @@ jobs:
         ### Installation
         
         #### RPM (Red Hat/CentOS/Fedora/Rocky Linux/AlmaLinux)
+        
+        Choose the appropriate package for your system:
+        
         ```bash
-        # Download and install
-        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*.rpm
-        sudo rpm -ivh hugepages-reserve-service-*.rpm
+        # For EL9 (Rocky Linux 9, AlmaLinux 9, RHEL 9)
+        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*-1.el9.noarch.rpm
+        sudo rpm -ivh hugepages-reserve-service-*-1.el9.noarch.rpm
+        
+        # For EL8 (Rocky Linux 8, AlmaLinux 8, RHEL 8, CentOS 8)
+        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*-1.el8.noarch.rpm
+        sudo rpm -ivh hugepages-reserve-service-*-1.el8.noarch.rpm
+        
+        # For EL7 (CentOS 7, RHEL 7)
+        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*-1.el7.noarch.rpm
+        sudo rpm -ivh hugepages-reserve-service-*-1.el7.noarch.rpm
         ```
         
         #### DEB (Debian/Ubuntu)
@@ -196,11 +225,19 @@ jobs:
       matrix:
         include:
           - os-image: "rockylinux:9"
-            package-type: "rpm"
+            package-type: "rpm-packages-el9"
             install-cmd: "dnf install -y systemd && rpm -ivh"
             systemd-path: "/usr/lib/systemd/system"
+          - os-image: "rockylinux:8"
+            package-type: "rpm-packages-el8"
+            install-cmd: "dnf install -y systemd && rpm -ivh"
+            systemd-path: "/usr/lib/systemd/system"
+          - os-image: "almalinux:7"
+            package-type: "rpm-packages-el7"
+            install-cmd: "yum install -y systemd && rpm -ivh"
+            systemd-path: "/usr/lib/systemd/system"
           - os-image: "ubuntu:22.04"
-            package-type: "deb"
+            package-type: "deb-packages"
             install-cmd: "apt-get update && dpkg -i"
             systemd-path: "/lib/systemd/system"
           
@@ -208,16 +245,21 @@ jobs:
     - name: Download packages
       uses: actions/download-artifact@v4
       with:
-        name: ${{ matrix.package-type }}-packages
+        name: ${{ matrix.package-type }}
         path: ./packages
         
     - name: Test package installation
       run: |
         docker run --rm -v $(pwd)/packages:/packages ${{ matrix.os-image }} bash -c "
           echo 'Installing package dependencies...'
-          if [[ '${{ matrix.package-type }}' == 'rpm' ]]; then
-            dnf update -y
-            dnf install -y systemd
+          if [[ '${{ matrix.package-type }}' == *'rpm'* ]]; then
+            if [[ '${{ matrix.os-image }}' == *'7' ]]; then
+              yum update -y
+              yum install -y systemd
+            else
+              dnf update -y
+              dnf install -y systemd
+            fi
             echo 'Installing RPM package...'
             rpm -ivh /packages/*.rpm --nodeps || rpm -ivh /packages/*.rpm
           else

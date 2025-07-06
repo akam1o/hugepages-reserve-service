@@ -37,6 +37,33 @@ node1	1G	64
 
 ### Package Installation
 
+#### Pre-built Packages from GitHub Releases
+
+Download and install the appropriate package for your distribution:
+
+**RPM (Red Hat/CentOS/Fedora/Rocky Linux/AlmaLinux):**
+
+```bash
+# For EL9 (Rocky Linux 9, AlmaLinux 9, RHEL 9)
+wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el9.noarch.rpm
+sudo rpm -ivh hugepages-reserve-service-*-1.el9.noarch.rpm
+
+# For EL8 (Rocky Linux 8, AlmaLinux 8, RHEL 8, CentOS 8)
+wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el8.noarch.rpm
+sudo rpm -ivh hugepages-reserve-service-*-1.el8.noarch.rpm
+
+# For EL7 (CentOS 7, RHEL 7)
+wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el7.noarch.rpm
+sudo rpm -ivh hugepages-reserve-service-*-1.el7.noarch.rpm
+```
+
+**DEB (Debian/Ubuntu):**
+
+```bash
+wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service_*_all.deb
+sudo dpkg -i hugepages-reserve-service_*_all.deb
+```
+
 #### Building RPM Package
 
 1. Install build dependencies:
