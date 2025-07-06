@@ -9,8 +9,10 @@ Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
 Requires:       /bin/sh
-# systemd is needed for the service but not hard required for testing
+# systemd is recommended but not strictly required
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
 Recommends:     systemd
+%endif
 
 %description
 A systemd service for reserving hugepages on NUMA nodes based on configuration.

@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build-rpm:
@@ -21,7 +22,7 @@ jobs:
             el_version: "el9"
           - container: "rockylinux:8"
             el_version: "el8"
-          - container: "almalinux:7"
+          - container: "centos:7"
             el_version: "el7"
     
     container: ${{ matrix.container }}
@@ -56,6 +57,14 @@ jobs:
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
           echo "Building for version: $TAG_VERSION"
           ./scripts/release.sh $TAG_VERSION
+        fi
+        # Update dist tag for different EL versions
+        if [[ "${{ matrix.el_version }}" == "el7" ]]; then
+          sed -i "s/%{?dist}/.el7/" rpm/hugepages-reserve-service.spec
+        elif [[ "${{ matrix.el_version }}" == "el8" ]]; then
+          sed -i "s/%{?dist}/.el8/" rpm/hugepages-reserve-service.spec
+        else
+          sed -i "s/%{?dist}/.el9/" rpm/hugepages-reserve-service.spec
         fi
         make rpm
         
