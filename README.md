@@ -149,6 +149,9 @@ make rpm
 # DEB package  
 make install-deps-deb  # First time only
 make deb
+
+# DEB package test (macOS/Windows with Docker)
+make test-deb
 ```
 
 ## Installed Files

@@ -32,9 +32,19 @@ rpm: prepare-rpm
 # Build DEB package
 deb:
 	@echo "Building DEB package..."
-	@dpkg-buildpackage -us -uc -b
+	@if command -v dpkg-buildpackage >/dev/null 2>&1; then \
+		dpkg-buildpackage -us -uc -b; \
+	else \
+		echo "dpkg-buildpackage not found. Use 'make test-deb' for Docker-based testing."; \
+		exit 1; \
+	fi
 	@echo "DEB package built successfully!"
 	@echo "Location: ../$(PACKAGE_NAME)_$(VERSION)-1_all.deb"
+
+# Test DEB build using Docker (for macOS/Windows)
+test-deb:
+	@echo "Testing DEB package build using Docker..."
+	@./scripts/test-deb-build.sh
 
 # Install build dependencies
 install-deps-rpm:
@@ -61,6 +71,7 @@ clean:
 	@rm -f debian/debhelper-build-stamp
 	@rm -f debian/hugepages-reserve-service.debhelper.log
 	@rm -f debian/hugepages-reserve-service.substvars
+	@rm -rf debian/.debhelper/
 
 # Help target
 help:
@@ -68,6 +79,7 @@ help:
 	@echo "  all                - Build both RPM and DEB packages"
 	@echo "  rpm                - Build RPM package"
 	@echo "  deb                - Build DEB package"
+	@echo "  test-deb           - Test DEB build using Docker (for macOS/Windows)"
 	@echo "  install-deps-rpm   - Install RPM build dependencies"
 	@echo "  install-deps-deb   - Install DEB build dependencies"
 	@echo "  clean              - Clean build artifacts"

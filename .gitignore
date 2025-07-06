@@ -16,6 +16,7 @@ debian/tmp/
 debian/debhelper-build-stamp
 debian/hugepages-reserve-service.debhelper.log
 debian/hugepages-reserve-service.substvars
+debian/changelog.new
 
 # Backup files
 *.bak

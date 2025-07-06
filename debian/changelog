@@ -5,4 +5,4 @@ hugepages-reserve-service (1.0.0-1) unstable; urgency=medium
   * Support for 2MB and 1GB hugepages
   * Per-NUMA node configuration
 
- -- System Administrator <admin@example.com>  $(date -R)
+ -- akam1o <admin@example.com>  Sat, 06 Jul 2025 14:00:00 +0900
