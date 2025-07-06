@@ -48,5 +48,5 @@ cp -p usr/lib/systemd/hugepages-reserve.sh $RPM_BUILD_ROOT/usr/lib/systemd/
 %attr(0755,root,root) /usr/lib/systemd/hugepages-reserve.sh
 
 %changelog
-* $(date +'%a %b %d %Y') System Administrator <admin@example.com> - 1.0.0-1
+* Sat Jul 06 2025 akam1o <admin@example.com> - 1.0.0-1
 - Initial package

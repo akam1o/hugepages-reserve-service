@@ -28,6 +28,7 @@ jobs:
         
     - name: Build RPM package
       run: |
+        chmod +x scripts/release.sh
         make rpm
         
     - name: Upload RPM artifacts
@@ -55,6 +56,7 @@ jobs:
         
     - name: Build DEB package
       run: |
+        chmod +x scripts/release.sh debian/rules
         make deb
         
     - name: Upload DEB artifacts

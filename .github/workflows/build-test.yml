@@ -35,7 +35,12 @@ jobs:
       run: ${{ matrix.deps_cmd }}
         
     - name: Build package
-      run: ${{ matrix.build_cmd }}
+      run: |
+        chmod +x scripts/release.sh
+        if [[ "${{ matrix.container }}" != "" ]]; then
+          chmod +x debian/rules 2>/dev/null || true
+        fi
+        ${{ matrix.build_cmd }}
       
     - name: Verify build artifacts
       run: |

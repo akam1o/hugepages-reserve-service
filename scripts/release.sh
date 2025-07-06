@@ -27,6 +27,7 @@ sed -i.bak "s/^VERSION = .*/VERSION = $VERSION/" "$PROJECT_ROOT/Makefile"
 cd "$PROJECT_ROOT"
 DEBIAN_VERSION="$VERSION-1"
 CURRENT_DATE=$(date -R)
+RPM_DATE=$(date +'%a %b %d %Y')
 
 # Create new changelog entry
 cat > debian/changelog.new << EOF
@@ -43,6 +44,9 @@ if [ -f debian/changelog ]; then
     cat debian/changelog >> debian/changelog.new
 fi
 mv debian/changelog.new debian/changelog
+
+# Update RPM changelog
+sed -i.bak "s/^\* .* System Administrator.*/\* $RPM_DATE System Administrator <admin@example.com> - $VERSION-1/" "$PROJECT_ROOT/rpm/hugepages-reserve-service.spec"
 
 # Clean up backup files
 rm -f rpm/hugepages-reserve-service.spec.bak Makefile.bak
