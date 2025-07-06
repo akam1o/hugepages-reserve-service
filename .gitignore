@@ -1,0 +1,37 @@
+# Build artifacts
+*.rpm
+*.deb
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+
+# RPM build directories
+rpmbuild/
+
+# DEB build artifacts
+debian/files
+debian/.debhelper/
+debian/hugepages-reserve-service/
+debian/tmp/
+debian/debhelper-build-stamp
+debian/hugepages-reserve-service.debhelper.log
+debian/hugepages-reserve-service.substvars
+
+# Backup files
+*.bak
+*~
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

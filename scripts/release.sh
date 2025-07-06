@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Release helper script for hugepages-reserve-service
+# Usage: ./scripts/release.sh <version>
+
+set -e
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <version>"
+    echo "Example: $0 1.0.1"
+    exit 1
+fi
+
+VERSION=$1
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+echo "Preparing release $VERSION..."
+
+# Update version in SPEC file
+sed -i.bak "s/^Version:.*/Version:        $VERSION/" "$PROJECT_ROOT/rpm/hugepages-reserve-service.spec"
+
+# Update version in Makefile
+sed -i.bak "s/^VERSION = .*/VERSION = $VERSION/" "$PROJECT_ROOT/Makefile"
+
+# Update changelog in debian/changelog
+cd "$PROJECT_ROOT"
+DEBIAN_VERSION="$VERSION-1"
+CURRENT_DATE=$(date -R)
+
+# Create new changelog entry
+cat > debian/changelog.new << EOF
+hugepages-reserve-service ($DEBIAN_VERSION) unstable; urgency=medium
+
+  * Release version $VERSION
+
+ -- System Administrator <admin@example.com>  $CURRENT_DATE
+
+EOF
+
+# Append existing changelog
+if [ -f debian/changelog ]; then
+    cat debian/changelog >> debian/changelog.new
+fi
+mv debian/changelog.new debian/changelog
+
+# Clean up backup files
+rm -f rpm/hugepages-reserve-service.spec.bak Makefile.bak
+
+echo "Updated files:"
+echo "- rpm/hugepages-reserve-service.spec"
+echo "- Makefile"
+echo "- debian/changelog"
+echo ""
+echo "Next steps:"
+echo "1. Review changes: git diff"
+echo "2. Commit changes: git add -A && git commit -m 'Release $VERSION'"
+echo "3. Create and push tag: git tag v$VERSION && git push origin v$VERSION"
+echo "4. GitHub Actions will automatically build and create release"

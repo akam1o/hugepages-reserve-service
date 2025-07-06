@@ -100,6 +100,56 @@ make all
 
 ### Build System
 - `Makefile` - Build automation
+- `scripts/release.sh` - Release helper script
+- `.github/workflows/` - GitHub Actions CI/CD
+
+## Development
+
+### Creating a Release
+
+1. Update version and create changelog:
+   ```bash
+   ./scripts/release.sh 1.0.1
+   ```
+
+2. Review and commit changes:
+   ```bash
+   git diff
+   git add -A
+   git commit -m "Release 1.0.1"
+   ```
+
+3. Create and push tag:
+   ```bash
+   git tag v1.0.1
+   git push origin v1.0.1
+   ```
+
+4. GitHub Actions will automatically:
+   - Build RPM and DEB packages
+   - Test package installation
+   - Create GitHub release
+   - Upload packages to release assets
+
+### Manual Package Building
+
+#### Building Both Packages
+
+```bash
+make all
+```
+
+#### Building Individual Packages
+
+```bash
+# RPM package
+make install-deps-rpm  # First time only
+make rpm
+
+# DEB package  
+make install-deps-deb  # First time only
+make deb
+```
 
 ## Installed Files
 
