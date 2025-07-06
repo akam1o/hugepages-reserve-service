@@ -41,6 +41,10 @@ jobs:
           chmod +x debian/rules 2>/dev/null || true
         fi
         ${{ matrix.build_cmd }}
+        # Move DEB files to current directory if DEB build
+        if [[ "${{ matrix.name }}" == *"DEB"* ]]; then
+          find .. -name "*.deb" -type f -exec cp {} . \; 2>/dev/null || true
+        fi
       
     - name: Verify build artifacts
       run: |
@@ -48,6 +52,6 @@ jobs:
           ls -la ~/rpmbuild/RPMS/noarch/
           test -f ~/rpmbuild/RPMS/noarch/hugepages-reserve-service-*.rpm
         else
-          ls -la ../
-          test -f ../hugepages-reserve-service_*.deb
+          ls -la .
+          test -f ./hugepages-reserve-service_*.deb
         fi

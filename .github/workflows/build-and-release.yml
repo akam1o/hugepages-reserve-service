@@ -64,17 +64,24 @@ jobs:
         chmod +x scripts/release.sh debian/rules
         make deb
         
-    - name: List DEB artifacts
+    - name: Move DEB packages to current directory
       run: |
-        echo "Built DEB packages:"
-        ls -la ../
-        find .. -name "*.deb" -type f
+        echo "Finding DEB packages..."
+        if find .. -name "*.deb" -type f | head -1 | grep -q .; then
+          find .. -name "*.deb" -type f -exec cp {} . \;
+          echo "DEB packages copied to current directory:"
+          ls -la *.deb
+        else
+          echo "No DEB packages found!"
+          ls -la ../
+          exit 1
+        fi
         
     - name: Upload DEB artifacts
       uses: actions/upload-artifact@v4
       with:
         name: deb-packages
-        path: ../hugepages-reserve-service_*.deb
+        path: "*.deb"
         retention-days: 30
 
   release:
