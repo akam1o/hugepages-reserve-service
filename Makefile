@@ -17,7 +17,8 @@ prepare-rpm:
 	@echo "Preparing RPM build environment..."
 	@mkdir -p $(RPM_BUILD_DIR)/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 	@tar --exclude='.git' --exclude='rpm' --exclude='debian' --exclude='Makefile' \
-		--exclude='*.rpm' --exclude='*.deb' --exclude='*.tar.gz' \
+		--exclude='*.rpm' --exclude='*.deb' --exclude='*.tar.gz' --exclude='scripts' \
+		--exclude='.github' --exclude='.gitignore' \
 		-czf $(RPM_SOURCES_DIR)/$(PACKAGE_NAME)-$(VERSION).tar.gz \
 		--transform 's,^,$(PACKAGE_NAME)-$(VERSION)/,' hugepages-reserve-service/
 	@cp rpm/$(PACKAGE_NAME).spec $(RPM_SPECS_DIR)/

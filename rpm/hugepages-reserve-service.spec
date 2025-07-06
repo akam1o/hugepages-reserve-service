@@ -29,9 +29,9 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd
 
 # Install files
-cp -p etc/hugepages.conf $RPM_BUILD_ROOT/etc/
-cp -p etc/systemd/system/hugepages-reserve.service $RPM_BUILD_ROOT/usr/lib/systemd/system/
-cp -p usr/lib/systemd/hugepages-reserve.sh $RPM_BUILD_ROOT/usr/lib/systemd/
+cp -p hugepages-reserve-service/etc/hugepages.conf $RPM_BUILD_ROOT/etc/
+cp -p hugepages-reserve-service/etc/systemd/system/hugepages-reserve.service $RPM_BUILD_ROOT/usr/lib/systemd/system/
+cp -p hugepages-reserve-service/usr/lib/systemd/hugepages-reserve.sh $RPM_BUILD_ROOT/usr/lib/systemd/
 
 %post
 %systemd_post hugepages-reserve.service
@@ -48,5 +48,5 @@ cp -p usr/lib/systemd/hugepages-reserve.sh $RPM_BUILD_ROOT/usr/lib/systemd/
 %attr(0755,root,root) /usr/lib/systemd/hugepages-reserve.sh
 
 %changelog
-* Sat Jul 06 2025 akam1o <admin@example.com> - 1.0.0-1
+* Fri Jul 05 2024 akam1o <admin@example.com> - 1.0.0-1
 - Initial package
