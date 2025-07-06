@@ -67,7 +67,7 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf $(RPM_BUILD_DIR)
 	@rm -f ../$(PACKAGE_NAME)_$(VERSION)*
-	@rm -f debian/files debian/.debhelper debian/hugepages-reserve-service/ debian/tmp/
+	@rm -rf debian/files debian/.debhelper debian/hugepages-reserve-service/ debian/tmp/
 	@rm -f debian/debhelper-build-stamp
 	@rm -f debian/hugepages-reserve-service.debhelper.log
 	@rm -f debian/hugepages-reserve-service.substvars
