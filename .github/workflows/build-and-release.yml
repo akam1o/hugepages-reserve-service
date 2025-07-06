@@ -8,6 +8,9 @@ on:
     types: [created]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-rpm:
     runs-on: ubuntu-latest
@@ -91,6 +94,9 @@ jobs:
     if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
     
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
     - name: Download RPM artifacts
       uses: actions/download-artifact@v4
       with:
@@ -119,41 +125,53 @@ jobs:
           echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         fi
         
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ steps.tag.outputs.tag_name }}
-        name: Release ${{ steps.tag.outputs.tag_name }}
-        body: |
-          ## hugepages-reserve-service ${{ steps.tag.outputs.tag_name }}
-          
-          ### Installation
-          
-          #### RPM (Red Hat/CentOS/Fedora/Rocky Linux/AlmaLinux)
-          ```bash
-          # Download and install
-          wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*.rpm
-          sudo rpm -ivh hugepages-reserve-service-*.rpm
-          ```
-          
-          #### DEB (Debian/Ubuntu)
-          ```bash
-          # Download and install
-          wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service_*.deb
-          sudo dpkg -i hugepages-reserve-service_*.deb
-          ```
-          
-          ### Usage
-          1. Configure hugepage reservations in `/etc/hugepages.conf`
-          2. Enable the service: `sudo systemctl enable hugepages-reserve.service`
-          3. Start the service: `sudo systemctl start hugepages-reserve.service`
-          
-          See README.md for detailed configuration instructions.
-        files: |
-          rpm-packages/**
-          deb-packages/**
-        draft: false
-        prerelease: false
+    - name: Create Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        tag_name="${{ steps.tag.outputs.tag_name }}"
+        
+        # Create release notes
+        cat > release_notes.md << 'EOF'
+        ## hugepages-reserve-service ${{ steps.tag.outputs.tag_name }}
+        
+        ### Installation
+        
+        #### RPM (Red Hat/CentOS/Fedora/Rocky Linux/AlmaLinux)
+        ```bash
+        # Download and install
+        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service-*.rpm
+        sudo rpm -ivh hugepages-reserve-service-*.rpm
+        ```
+        
+        #### DEB (Debian/Ubuntu)
+        ```bash
+        # Download and install
+        wget https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.tag_name }}/hugepages-reserve-service_*.deb
+        sudo dpkg -i hugepages-reserve-service_*.deb
+        ```
+        
+        ### Usage
+        1. Configure hugepage reservations in `/etc/hugepages.conf`
+        2. Enable the service: `sudo systemctl enable hugepages-reserve.service`
+        3. Start the service: `sudo systemctl start hugepages-reserve.service`
+        
+        See README.md for detailed configuration instructions.
+        EOF
+        
+        # Check if release already exists
+        if gh release view "$tag_name" >/dev/null 2>&1; then
+          echo "Release $tag_name already exists, updating it..."
+          gh release edit "$tag_name" --notes-file release_notes.md
+        else
+          echo "Creating new release $tag_name..."
+          gh release create "$tag_name" --title "Release $tag_name" --notes-file release_notes.md
+        fi
+        
+        # Upload files
+        echo "Uploading files..."
+        find ./rpm-packages -name "*.rpm" -exec gh release upload "$tag_name" {} \;
+        find ./deb-packages -name "*.deb" -exec gh release upload "$tag_name" {} \;
 
   test-packages:
     needs: [build-rpm, build-deb]

@@ -8,7 +8,7 @@ URL:            https://github.com/example/hugepages-reserve-service
 Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
-Requires:       systemd
+Requires:       /bin/sh
 
 %description
 A systemd service for reserving hugepages on NUMA nodes based on configuration.
