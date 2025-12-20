@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: System Administrator <admin@example.com>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.0
+License: Apache-2.0
 Homepage: https://github.com/example/hugepages-reserve-service
 
 Package: hugepages-reserve-service

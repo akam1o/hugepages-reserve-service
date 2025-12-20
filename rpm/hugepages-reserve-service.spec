@@ -3,7 +3,7 @@ Version:        1.0.5
 Release:        1%{?dist}
 Summary:        Service for reserving hugepages on NUMA nodes
 
-License:        GPL
+License:        Apache-2.0
 URL:            https://github.com/example/hugepages-reserve-service
 Source0:        %{name}-%{version}.tar.gz
 
