@@ -1,10 +1,10 @@
 Name:           hugepages-reserve-service
-Version:        1.0.5
+Version:        1.1.0
 Release:        1%{?dist}
 Summary:        Service for reserving hugepages on NUMA nodes
 
 License:        Apache-2.0
-URL:            https://github.com/example/hugepages-reserve-service
+URL:            https://github.com/akam1o/hugepages-reserve-service
 Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
@@ -71,5 +71,17 @@ fi
 %attr(0755,root,root) /usr/lib/systemd/hugepages-reserve.sh
 
 %changelog
+* Wed Mar 04 2026 akam1o <admin@example.com> - 1.1.0-1
+- Improve shell script: proper quoting, input validation, logging
+- Add sysfs mount dependency (After=sys.mount) to service
+- Fix debian packaging (dh_installsystemd integration)
+- Update repository URLs
+
+* Sun Jul 06 2025 akam1o <admin@example.com> - 1.0.5-1
+- Release version 1.0.5
+
+* Sun Jul 06 2025 akam1o <admin@example.com> - 1.0.3-1
+- Release version 1.0.3
+
 * Fri Jul 05 2024 akam1o <admin@example.com> - 1.0.0-1
 - Initial package

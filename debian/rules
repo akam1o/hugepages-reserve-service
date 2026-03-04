@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 #
-# Copyright 2024-2025 akam1o
+# Copyright 2024-2026 akam1o
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,3 +31,6 @@ override_dh_auto_install:
 	# Install script
 	install -D -m 755 hugepages-reserve-service/usr/lib/systemd/hugepages-reserve.sh \
 		debian/hugepages-reserve-service/usr/lib/systemd/hugepages-reserve.sh
+
+override_dh_installsystemd:
+	dh_installsystemd --name=hugepages-reserve

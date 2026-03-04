@@ -31,6 +31,7 @@ node1	1G	64
 
 2. Enable and start the service:
    ```bash
+   sudo systemctl daemon-reload
    sudo systemctl enable hugepages-reserve.service
    sudo systemctl start hugepages-reserve.service
    ```
@@ -45,18 +46,18 @@ Download and install the appropriate package for your distribution:
 
 ```bash
 # For EL9 (Rocky Linux 9, AlmaLinux 9, RHEL 9)
-wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el9.noarch.rpm
+wget https://github.com/akam1o/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el9.noarch.rpm
 sudo rpm -ivh hugepages-reserve-service-*-1.el9.noarch.rpm
 
 # For EL8 (Rocky Linux 8, AlmaLinux 8, RHEL 8, CentOS 8)
-wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el8.noarch.rpm
+wget https://github.com/akam1o/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service-*-1.el8.noarch.rpm
 sudo rpm -ivh hugepages-reserve-service-*-1.el8.noarch.rpm
 ```
 
 **DEB (Debian/Ubuntu):**
 
 ```bash
-wget https://github.com/[your-repo]/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service_*_all.deb
+wget https://github.com/akam1o/hugepages-reserve-service/releases/latest/download/hugepages-reserve-service_*_all.deb
 sudo dpkg -i hugepages-reserve-service_*_all.deb
 ```
 
@@ -74,7 +75,7 @@ sudo dpkg -i hugepages-reserve-service_*_all.deb
 
 3. Install the package:
    ```bash
-   sudo rpm -ivh ~/rpmbuild/RPMS/noarch/hugepages-reserve-service-1.0.0-1.*.noarch.rpm
+   sudo rpm -ivh ~/rpmbuild/RPMS/noarch/hugepages-reserve-service-1.1.0-1.*.noarch.rpm
    ```
 
 #### Building DEB Package
@@ -91,7 +92,7 @@ sudo dpkg -i hugepages-reserve-service_*_all.deb
 
 3. Install the package:
    ```bash
-   sudo dpkg -i ../hugepages-reserve-service_1.0.0-1_all.deb
+   sudo dpkg -i ../hugepages-reserve-service_1.1.0-1_all.deb
    ```
 
 #### Building Both Packages
@@ -112,11 +113,10 @@ make all
 ### RPM Package Files
 - `rpm/hugepages-reserve-service.spec` - RPM package specification
 
-### DEB Package Files  
+### DEB Package Files
 - `debian/control` - Package metadata
 - `debian/changelog` - Package change history
 - `debian/rules` - Build rules
-- `debian/compat` - Debhelper compatibility version
 - `debian/hugepages-reserve-service.conffiles` - Configuration files
 - `debian/hugepages-reserve-service.postinst` - Post-installation script
 - `debian/hugepages-reserve-service.prerm` - Pre-removal script
@@ -124,7 +124,7 @@ make all
 ### Build System
 - `Makefile` - Build automation
 - `scripts/release.sh` - Release helper script
-- `.github/workflows/` - GitHub Actions CI/CD
+- `scripts/test-deb-build.sh` - Docker-based DEB build test
 
 ## Development
 
@@ -132,20 +132,20 @@ make all
 
 1. Update version and create changelog:
    ```bash
-   ./scripts/release.sh 1.0.1
+   ./scripts/release.sh 1.1.0
    ```
 
 2. Review and commit changes:
    ```bash
    git diff
    git add -A
-   git commit -m "Release 1.0.1"
+   git commit -m "Release 1.1.0"
    ```
 
 3. Create and push tag:
    ```bash
-   git tag v1.0.1
-   git push origin v1.0.1
+   git tag v1.1.0
+   git push origin v1.1.0
    ```
 
 4. GitHub Actions will automatically:
@@ -169,7 +169,7 @@ make all
 make install-deps-rpm  # First time only
 make rpm
 
-# DEB package  
+# DEB package
 make install-deps-deb  # First time only
 make deb
 
@@ -193,7 +193,7 @@ make test-deb
 
 This project is licensed under the Apache License, Version 2.0. See the [LICENSE](LICENSE) file for details.
 
-Copyright 2024-2025 akam1o
+Copyright 2024-2026 akam1o
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

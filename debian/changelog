@@ -1,3 +1,12 @@
+hugepages-reserve-service (1.1.0-1) unstable; urgency=medium
+
+  * Improve shell script: proper quoting, input validation, logging
+  * Add sysfs mount dependency (After=sys.mount) to service
+  * Fix debian packaging (dh_installsystemd integration)
+  * Update repository URLs
+
+ -- System Administrator <admin@example.com>  Wed, 04 Mar 2026 00:00:00 +0900
+
 hugepages-reserve-service (1.0.5-1) unstable; urgency=medium
 
   * Release version 1.0.5

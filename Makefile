@@ -1,4 +1,4 @@
-# Copyright 2024-2025 akam1o
+# Copyright 2024-2026 akam1o
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 PACKAGE_NAME = hugepages-reserve-service
-VERSION = 1.0.5
+VERSION = 1.1.0
 RELEASE = 1
 
 # RPM build directories
