@@ -15,8 +15,15 @@
 # limitations under the License.
 
 nodes_path=/sys/devices/system/node
+config_path=/etc/hugepages.conf
+
 if [ ! -d "$nodes_path" ]; then
     echo "ERROR: $nodes_path does not exist"
+    exit 1
+fi
+
+if [ ! -r "$config_path" ]; then
+    echo "ERROR: $config_path does not exist or is not readable"
     exit 1
 fi
 
@@ -37,6 +44,8 @@ reserve_pages_2m()
 }
 
 reservation_pids=
+reservation_keys=
+reservation_failed=0
 
 while read -r line; do
     case "$line" in
@@ -64,6 +73,20 @@ while read -r line; do
     hugepage_size=$(echo "$hugepage_size" | tr '[:lower:]' '[:upper:]')
 
     case "$hugepage_size" in
+        2M|1G)
+            reservation_key="$node:$hugepage_size"
+            case " $reservation_keys " in
+                *" $reservation_key "*)
+                    echo "ERROR: duplicate reservation for $node $hugepage_size, skipping"
+                    reservation_failed=1
+                    continue
+                    ;;
+            esac
+            reservation_keys="$reservation_keys $reservation_key"
+            ;;
+    esac
+
+    case "$hugepage_size" in
         2M)
             nr_hugepages=$((hugepage_reserve_gb * 512))
             echo "Reserving $nr_hugepages 2M hugepages on $node ($hugepage_reserve_gb GB)"
@@ -80,9 +103,8 @@ while read -r line; do
             continue
             ;;
     esac
-done < /etc/hugepages.conf
+done < "$config_path"
 
-reservation_failed=0
 # Wait for every reservation individually so that no write failure is lost.
 for pid in $reservation_pids; do
     if ! wait "$pid"; then
